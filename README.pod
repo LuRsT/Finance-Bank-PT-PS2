@@ -1,0 +1,136 @@
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Finance::Bank::PT::PS2 - Helper for generating PS2 files used for automatic transactions in banking systems.
+
+=head1 VERSION
+
+version 0.01
+
+=head1 SYNOPSIS
+
+Helper for generating PS2 files used for automatic transactions in banking systems.
+
+=head1 DESCRIPTION
+
+This class helps generating PS2 files used for automatic transactions in banking systems.
+PS2 files have a structure based in 3 different register formats with a fixed length of 80 bytes:
+
+      Register type 1 --> start register          --> one per file
+          - operation type, owner´s NIB, currency code (e.g. EUR), processing date, owner´s reference
+
+      Register type 2 --> transaction register    --> one or more per file
+          - operation type, destination NIB, amount, company´s reference, transaction´s reference
+
+      Register type 9 --> end register            --> one per file
+          - operation type, total transactions, total amount
+
+For more detailed description of PS2 files: https://corp.millenniumbcp.pt/pt/private/Documents/Layout_PS2_3.pdf (PT)
+
+=head1 METHODS
+
+=head2 set_operation_type
+
+The first method called
+defines the code that determines the service in question (salaries payment, bank transfer, house rent, ...)
+e.g.
+      'operation_type' => '08'
+
+=head2 get_transaction_key
+
+Method used to obtain the corresponding hash key of a transaction (register type 2)
+
+=head2 set_initial_record
+
+To be called after the set_operation_type() method
+set the necessary fields to build the start register (register type 1)
+e.g.
+      'owner_nib'       => '123456789012345678901',
+      'currency_code'   => 'EUR',
+      'processing_date' => '20120314',                 #AAAAMMDD
+      'owner_ref'       => 'Owner NAME ',
+
+=head2 add_transaction
+
+To be called after the set_operation_type() and set_initial_record() methods
+set the necessary fields to build a transaction register (register type 2)
+This method is called n times where n is the number of transactions
+e.g.
+      'nib'          => '098765432123456789098',
+      'amount'       => 10123,                         #101,23 €
+      'company_ref'  => 'NAME OF THE COMPANY or PERSON',
+      'transfer_ref' => 'april/2012',
+
+=head2 set_final_record
+
+To be called after adding all the transactions with the method add_transaction()
+set the necessary fields to build the end register (register type 9)
+
+=head2 init_rec_as_string
+
+This method builds the start register (register type 1) as a string
+
+=head2 trans_as_string
+
+This method builds the transaction registers (registers type 2) as a string
+
+=head2 final_rec_as_string
+
+This method builds the end register (register type 9) as a string
+
+=head2 as_string
+
+To be called after the set_initial_record(), add_transaction() (n times where n is the number of transactions) and set_final_record() methods
+this method builds the content of the PS2 file as a string
+
+=for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
+
+=head1 SUPPORT
+
+=head2 Bugs / Feature Requests
+
+Please report any bugs or feature requests through the issue tracker
+at L<https://github.com/LuRsT/finance-bank-pt-ps2/issues>.
+You will be notified automatically of any progress on your issue.
+
+=head2 Source Code
+
+This is open source software.  The code repository is available for
+public review and contribution under the terms of the license.
+
+L<https://github.com/LuRsT/finance-bank-pt-ps2>
+
+  git clone git://github.com/LuRsT/finance-bank-pt-ps2.git
+
+=head1 AUTHOR
+
+Gil Gonçalves <lurst@cpan.org>
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Gil Gonçalves <lursty@gmail.com>
+
+=item *
+
+Jose Carlos Oliveira Pereira <jcop@cpan.org>
+
+=item *
+
+Vítor Pedro <vitor.pedro88@gmail.com>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Gil Gonçalves.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
